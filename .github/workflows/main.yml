@@ -32,6 +32,7 @@ jobs:
       uses: google-github-actions/auth@v1
       with:
         create_credentials_file: true
+        project_id: 'expenses-report-373821'
         workload_identity_provider: 'projects/918882709746/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
         service_account: 'expenses-report-373821@appspot.gserviceaccount.com'
 
