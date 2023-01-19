@@ -32,8 +32,8 @@ jobs:
       uses: google-github-actions/auth@v1
       with:
         create_credentials_file: true
-        workload_identity_provider: 'projects/918882709746/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-        service_account: 'github-service-account@expenses-report-373821.iam.gserviceaccount.com'
+        workload_identity_provider: 'projects/918882709746/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'expenses-report-373821@appspot.gserviceaccount.com'
 
     - name: Deploy to App Engine
       id: deploy
