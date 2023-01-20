@@ -33,8 +33,8 @@ jobs:
       with:
         create_credentials_file: true
         project_id: ${{ secrets.PROJECT_ID }}
-        workload_identity_provider: 'projects/918882709746/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-        service_account: 'expenses-report-373821@appspot.gserviceaccount.com'
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT }}
 
     - name: Deploy to App Engine
       id: deploy
