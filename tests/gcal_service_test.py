@@ -6,7 +6,8 @@ class GCalService:
         self._client = client
 
     def get_events(self) -> None:
-        self._client.get(url=self._base_url)
+        url = self._base_url + "/calendars"
+        self._client.get(url=url)
 
 class Test_GCalService:
     def test_init_does_not_request_data_from_url(self) -> None:
@@ -23,4 +24,4 @@ class Test_GCalService:
 
         sut.get_events()
 
-        assert client.requested_urls == [a_url]
+        assert client.requested_urls == [a_url + "/calendars"]
