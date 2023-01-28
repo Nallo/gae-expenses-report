@@ -10,8 +10,9 @@ class GCalService:
         url += "/calendars/"
         url += calendar_id
         url += "/events"
-        
+
         self._client.get(url=url)
+
 
 class Test_GCalService:
     def test_init_does_not_request_data_from_url(self) -> None:
@@ -29,4 +30,4 @@ class Test_GCalService:
 
         sut.get_events(calendar_id=a_calendar_id)
 
-        assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events" ]
+        assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events"]
