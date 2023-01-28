@@ -5,8 +5,12 @@ class GCalService:
         self._base_url = base_url
         self._client = client
 
-    def get_events(self) -> None:
-        url = self._base_url + "/calendars"
+    def get_events(self, calendar_id: str) -> None:
+        url = self._base_url
+        url += "/calendars/"
+        url += calendar_id
+        url += "/events"
+        
         self._client.get(url=url)
 
 class Test_GCalService:
@@ -19,9 +23,10 @@ class Test_GCalService:
 
     def test_get_events_requests_data_from_url(self) -> None:
         a_url = "http://any-url.com"
+        a_calendar_id = "my-calendar-id"
         client = HTTPClientSpy()
         sut = GCalService(base_url=a_url, client=client)
 
-        sut.get_events()
+        sut.get_events(calendar_id=a_calendar_id)
 
-        assert client.requested_urls == [a_url + "/calendars"]
+        assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events" ]
