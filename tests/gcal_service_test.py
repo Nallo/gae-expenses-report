@@ -1,5 +1,6 @@
 from tests.utils.http_client_spy import HTTPClientSpy
 
+
 class GCalService:
     def __init__(self, base_url: str, client: HTTPClientSpy) -> None:
         self._base_url = base_url
