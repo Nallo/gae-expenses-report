@@ -12,7 +12,11 @@ class GCalService:
         url += calendar_id
         url += "/events"
 
-        self._client.get(url=url)
+        query_params = {
+            "orderBy": "startTime"
+        }
+
+        self._client.get(url=url, query_params=query_params)
 
 
 class Test_GCalService:
@@ -29,6 +33,14 @@ class Test_GCalService:
         sut.get_events(calendar_id=a_calendar_id)
 
         assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events"]
+
+    def test_get_events_sets_correct_query_parameters(self) -> None:
+        a_calendar_id = "my-calendar-id"
+        client, sut = self._make_sut()
+
+        sut.get_events(calendar_id=a_calendar_id)
+
+        assert client.requested_query_parameter(key="orderBy", value="startTime")
 
     # Helpers
 
