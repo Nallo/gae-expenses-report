@@ -1,3 +1,4 @@
+from typing import Any
 import pytest
 
 
@@ -10,7 +11,7 @@ class HTTPClientSpy:
         self.requested_urls.append(url)
         self._requested_query_params = query_params
 
-    def requested_query_parameter(self, key: str, value: str) -> bool:
+    def requested_query_parameter(self, key: str, value: Any) -> bool:
         if key not in self._requested_query_params:
             pytest.fail("key {} not found in requested query parameters".format(key))
         elif self._requested_query_params[key] != value:

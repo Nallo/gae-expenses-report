@@ -13,7 +13,9 @@ class GCalService:
         url += "/events"
 
         query_params = {
-            "orderBy": "startTime"
+            "orderBy": "startTime",
+            "q": "💸",
+            "singleEvents": True,
         }
 
         self._client.get(url=url, query_params=query_params)
@@ -41,6 +43,8 @@ class Test_GCalService:
         sut.get_events(calendar_id=a_calendar_id)
 
         assert client.requested_query_parameter(key="orderBy", value="startTime")
+        assert client.requested_query_parameter(key="q", value="💸")
+        assert client.requested_query_parameter(key="singleEvents", value=True)
 
     # Helpers
 
