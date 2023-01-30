@@ -1,3 +1,4 @@
+import pytest
 from tests.utils.http_client_spy import HTTPClientSpy
 
 
@@ -20,7 +21,13 @@ class GCalService:
             "timeMin": lower_bound_ts,
         }
 
-        self._client.get(url=url, query_params=query_params)
+        try:
+            self._client.get(url=url, query_params=query_params)
+        except Exception as e:
+            raise GCalService.ClientException(e.args)
+
+    class ClientException(Exception):
+        pass
 
 
 class Test_GCalService:
@@ -55,6 +62,15 @@ class Test_GCalService:
         assert client.requested_query_parameter(key="singleEvents", value=True)
         assert client.requested_query_parameter(key="timeMax", value=a_time)
         assert client.requested_query_parameter(key="timeMin", value=another_time)
+
+    def test_get_events_throws_client_excpetion_when_client_throws_any_exception(self) -> None:
+        a_calendar_id = "my-calendar-id"
+        client, sut = self._make_sut()
+        exception_description = "some expection description"
+        client._mocked_error = Exception(exception_description)
+
+        with pytest.raises(GCalService.ClientException, match=exception_description):
+            sut.get_events(calendar_id=a_calendar_id)
 
     # Helpers
 
