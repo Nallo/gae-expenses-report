@@ -6,7 +6,7 @@ class GCalService:
         self._base_url = base_url
         self._client = client
 
-    def get_events(self, calendar_id: str) -> None:
+    def get_events(self, calendar_id: str, upper_bound_ts: str = "") -> None:
         url = self._base_url
         url += "/calendars/"
         url += calendar_id
@@ -16,6 +16,7 @@ class GCalService:
             "orderBy": "startTime",
             "q": "💸",
             "singleEvents": True,
+            "timeMax": upper_bound_ts,
         }
 
         self._client.get(url=url, query_params=query_params)
@@ -38,13 +39,15 @@ class Test_GCalService:
 
     def test_get_events_sets_correct_query_parameters(self) -> None:
         a_calendar_id = "my-calendar-id"
+        a_time = "some time"
         client, sut = self._make_sut()
 
-        sut.get_events(calendar_id=a_calendar_id)
+        sut.get_events(calendar_id=a_calendar_id, upper_bound_ts=a_time)
 
         assert client.requested_query_parameter(key="orderBy", value="startTime")
         assert client.requested_query_parameter(key="q", value="💸")
         assert client.requested_query_parameter(key="singleEvents", value=True)
+        assert client.requested_query_parameter(key="timeMax", value=a_time)
 
     # Helpers
 
