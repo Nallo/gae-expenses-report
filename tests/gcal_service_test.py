@@ -8,7 +8,7 @@ class GCalService:
         self._base_url = base_url
         self._client = client
 
-    def get_events(self, calendar_id: str, upper_bound_ts: datetime.date, lower_bound_ts: str = "") -> None:
+    def get_events(self, calendar_id: str, until_date: datetime.date, lower_bound_ts: str = "") -> None:
         url = self._base_url
         url += "/calendars/"
         url += calendar_id
@@ -18,7 +18,7 @@ class GCalService:
             "orderBy": "startTime",
             "q": "💸",
             "singleEvents": True,
-            "timeMax": upper_bound_ts,
+            "timeMax": until_date,
             "timeMin": lower_bound_ts,
         }
 
@@ -42,7 +42,7 @@ class Test_GCalService:
         a_calendar_id = "my-calendar-id"
         client, sut = self._make_sut(base_url=a_url)
 
-        sut.get_events(calendar_id=a_calendar_id, upper_bound_ts=self._any_date())
+        sut.get_events(calendar_id=a_calendar_id, until_date=self._any_date())
 
         assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events"]
 
@@ -54,7 +54,7 @@ class Test_GCalService:
 
         sut.get_events(
             calendar_id=a_calendar_id, 
-            upper_bound_ts=a_time,
+            until_date=a_time,
             lower_bound_ts=another_time,
         )
 
@@ -71,7 +71,7 @@ class Test_GCalService:
         client._mocked_error = Exception(exception_description)
 
         with pytest.raises(GCalService.ClientException, match=exception_description):
-            sut.get_events(calendar_id=a_calendar_id, upper_bound_ts=self._any_date())
+            sut.get_events(calendar_id=a_calendar_id, until_date=self._any_date())
 
     # Helpers
 
