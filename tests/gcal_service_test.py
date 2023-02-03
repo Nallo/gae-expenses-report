@@ -8,7 +8,7 @@ class GCalService:
         self._base_url = base_url
         self._client = client
 
-    def get_events(self, calendar_id: str, until_date: datetime.date, lower_bound_ts: str = "") -> None:
+    def get_events(self, calendar_id: str, until_date: datetime.date, from_date: str = "") -> None:
         url = self._base_url
         url += "/calendars/"
         url += calendar_id
@@ -19,7 +19,7 @@ class GCalService:
             "q": "💸",
             "singleEvents": True,
             "timeMax": until_date,
-            "timeMin": lower_bound_ts,
+            "timeMin": from_date,
         }
 
         try:
@@ -55,7 +55,7 @@ class Test_GCalService:
         sut.get_events(
             calendar_id=a_calendar_id, 
             until_date=a_time,
-            lower_bound_ts=another_time,
+            from_date=another_time,
         )
 
         assert client.requested_query_parameter(key="orderBy", value="startTime")
