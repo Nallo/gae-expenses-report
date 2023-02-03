@@ -8,7 +8,7 @@ class GCalService:
         self._base_url = base_url
         self._client = client
 
-    def get_events(self, calendar_id: str, until_date: datetime.date, from_date: str = "") -> None:
+    def get_events(self, calendar_id: str, until_date: datetime.date, from_date: datetime.date) -> None:
         url = self._base_url
         url += "/calendars/"
         url += calendar_id
@@ -40,9 +40,10 @@ class Test_GCalService:
     def test_get_events_requests_data_from_url(self) -> None:
         a_url = "http://my-url.com"
         a_calendar_id = "my-calendar-id"
+        a_date = self._any_date()
         client, sut = self._make_sut(base_url=a_url)
 
-        sut.get_events(calendar_id=a_calendar_id, until_date=self._any_date())
+        sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
 
         assert client.requested_urls == [a_url + "/calendars/" + a_calendar_id + "/events"]
 
@@ -66,12 +67,13 @@ class Test_GCalService:
 
     def test_get_events_throws_client_excpetion_when_client_throws_any_exception(self) -> None:
         a_calendar_id = "my-calendar-id"
+        a_date = self._any_date()
         client, sut = self._make_sut()
         exception_description = "some expection description"
         client._mocked_error = Exception(exception_description)
 
         with pytest.raises(GCalService.ClientException, match=exception_description):
-            sut.get_events(calendar_id=a_calendar_id, until_date=self._any_date())
+            sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
 
     # Helpers
 
