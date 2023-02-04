@@ -18,8 +18,8 @@ class GCalService:
             "orderBy": "startTime",
             "q": "💸",
             "singleEvents": True,
-            "timeMax": until_date,
-            "timeMin": from_date,
+            "timeMax": until_date.isoformat(),
+            "timeMin": from_date.isoformat(),
         }
 
         try:
@@ -40,7 +40,7 @@ class Test_GCalService:
     def test_get_events_requests_data_from_url(self) -> None:
         a_url = "http://my-url.com"
         a_calendar_id = "my-calendar-id"
-        a_date = self._any_date()
+        a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut(base_url=a_url)
 
         sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
@@ -49,25 +49,24 @@ class Test_GCalService:
 
     def test_get_events_sets_correct_query_parameters(self) -> None:
         a_calendar_id = "my-calendar-id"
-        a_time = "some time"
-        another_time = "some other time"
+        a_date, a_date_str = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
 
         sut.get_events(
             calendar_id=a_calendar_id, 
-            until_date=a_time,
-            from_date=another_time,
+            from_date=a_date,
+            until_date=a_date,
         )
 
         assert client.requested_query_parameter(key="orderBy", value="startTime")
         assert client.requested_query_parameter(key="q", value="💸")
         assert client.requested_query_parameter(key="singleEvents", value=True)
-        assert client.requested_query_parameter(key="timeMax", value=a_time)
-        assert client.requested_query_parameter(key="timeMin", value=another_time)
+        assert client.requested_query_parameter(key="timeMax", value=a_date_str)
+        assert client.requested_query_parameter(key="timeMin", value=a_date_str)
 
     def test_get_events_throws_client_excpetion_when_client_throws_any_exception(self) -> None:
         a_calendar_id = "my-calendar-id"
-        a_date = self._any_date()
+        a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
         exception_description = "some expection description"
         client._mocked_error = Exception(exception_description)
@@ -83,5 +82,7 @@ class Test_GCalService:
 
         return (client, sut)
 
-    def _any_date(self) -> datetime.date:
-        return datetime.datetime.now()
+    def _date_one_giant_leap_for_mankind(self) -> tuple[datetime.date, str]:
+        date = datetime.datetime(year=1969, month=7, day=20, hour=22, minute=56, tzinfo=datetime.timezone.utc)
+        date_str = "1969-07-20T22:56:00+00:00"
+        return date, date_str
