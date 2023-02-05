@@ -69,7 +69,7 @@ class Test_GCalService:
         a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
         exception_description = "some expection description"
-        client._mocked_error = Exception(exception_description)
+        client.mock_failure(Exception(exception_description))
 
         with pytest.raises(GCalService.ClientException, match=exception_description):
             sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
