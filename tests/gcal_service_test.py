@@ -64,7 +64,7 @@ class Test_GCalService:
         assert client.requested_query_parameter(key="timeMax", value=a_date_str)
         assert client.requested_query_parameter(key="timeMin", value=a_date_str)
 
-    def test_get_events_throws_client_excpetion_when_client_throws_any_exception(self) -> None:
+    def test_get_events_throws_client_exception_when_client_throws_any_exception(self) -> None:
         a_calendar_id = "my-calendar-id"
         a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
