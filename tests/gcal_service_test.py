@@ -23,11 +23,17 @@ class GCalService:
         }
 
         try:
-            self._client.get(url=url, query_params=query_params)
+            response = self._client.get(url=url, query_params=query_params)
         except Exception as e:
             raise GCalService.ClientException(e.args)
 
+        if response and response.status_code != 200:
+            raise GCalService.InvalidData("client completed with {} status code".format(response.status_code))
+
     class ClientException(Exception):
+        pass
+
+    class InvalidData(Exception):
         pass
 
 
@@ -72,6 +78,16 @@ class Test_GCalService:
         client.mock_failure(Exception(exception_description))
 
         with pytest.raises(GCalService.ClientException, match=exception_description):
+            sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
+
+    def test_get_events_throws_invalid_data_exception_on_non_200_http_response(self) -> None:
+        a_calendar_id = "my-calendar-id"
+        a_date, _ = self._date_one_giant_leap_for_mankind()
+        invalid_status_code = 500
+        client, sut = self._make_sut()
+        client.mock_response(status_code=invalid_status_code)
+
+        with pytest.raises(GCalService.InvalidData, match="client completed with {} status code".format(invalid_status_code)):
             sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
 
     # Helpers
