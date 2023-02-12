@@ -82,15 +82,17 @@ class Test_GCalService:
         )
 
     def test_get_events_throws_invalid_data_exception_on_non_200_http_response(self) -> None:
-        invalid_status_code = 500
+        invalid_status_codes = [201, 300, 400, 500]
         client, sut = self._make_sut()
-        client.mock_response(status_code=invalid_status_code)
 
-        self._assert_sut_raises_exception(
-            sut=sut,
-            expected_e_type=GCalService.InvalidData,
-            expected_e_msg="client completed with {} status code".format(invalid_status_code)
-        )
+        for invalid_status_code in invalid_status_codes:
+            client.mock_response(status_code=invalid_status_code)
+
+            self._assert_sut_raises_exception(
+                sut=sut,
+                expected_e_type=GCalService.InvalidData,
+                expected_e_msg="client completed with {} status code".format(invalid_status_code)
+            )
 
     # Helpers
 
