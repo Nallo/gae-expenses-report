@@ -110,9 +110,12 @@ class Test_GCalService:
     def _assert_sut_raises_exception(self, sut: GCalService, expected_e_type: Exception, expected_e_msg: str) -> None:
         any_calendar_id = "my-calendar-id"
         any_date, _ = self._date_one_giant_leap_for_mankind()
+        received_e = None
         
         try:
             sut.get_events(calendar_id=any_calendar_id, from_date=any_date, until_date=any_date)
-        except Exception as received_e:
+        except Exception as e:
+            received_e = e
+        finally:
             assert type(received_e) == expected_e_type, "Expected '{}' got '{}' instead".format(expected_e_type, type(received_e))
             assert str(received_e) == expected_e_msg, "Expected exception message '{}'. Got '{}' instead".format(expected_e_msg, str(received_e))
