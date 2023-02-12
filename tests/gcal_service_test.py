@@ -25,7 +25,7 @@ class GCalService:
         try:
             response = self._client.get(url=url, query_params=query_params)
         except Exception as e:
-            raise GCalService.ClientException(e.args)
+            raise GCalService.ClientException(e)
 
         if response and response.status_code != 200:
             raise GCalService.InvalidData("client completed with {} status code".format(response.status_code))
@@ -71,24 +71,26 @@ class Test_GCalService:
         assert client.requested_query_parameter(key="timeMin", value=a_date_str)
 
     def test_get_events_throws_client_exception_when_client_throws_any_exception(self) -> None:
-        a_calendar_id = "my-calendar-id"
-        a_date, _ = self._date_one_giant_leap_for_mankind()
+        exception_description = "some exception description"
         client, sut = self._make_sut()
-        exception_description = "some expection description"
         client.mock_failure(Exception(exception_description))
 
-        with pytest.raises(GCalService.ClientException, match=exception_description):
-            sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
+        self._assert_sut_raises_exception(
+            sut=sut,
+            expected_e_type=GCalService.ClientException,
+            expected_e_msg=exception_description
+        )
 
     def test_get_events_throws_invalid_data_exception_on_non_200_http_response(self) -> None:
-        a_calendar_id = "my-calendar-id"
-        a_date, _ = self._date_one_giant_leap_for_mankind()
         invalid_status_code = 500
         client, sut = self._make_sut()
         client.mock_response(status_code=invalid_status_code)
 
-        with pytest.raises(GCalService.InvalidData, match="client completed with {} status code".format(invalid_status_code)):
-            sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
+        self._assert_sut_raises_exception(
+            sut=sut,
+            expected_e_type=GCalService.InvalidData,
+            expected_e_msg="client completed with {} status code".format(invalid_status_code)
+        )
 
     # Helpers
 
@@ -102,3 +104,13 @@ class Test_GCalService:
         date = datetime.datetime(year=1969, month=7, day=20, hour=22, minute=56, tzinfo=datetime.timezone.utc)
         date_str = "1969-07-20T22:56:00+00:00"
         return date, date_str
+    
+    def _assert_sut_raises_exception(self, sut: GCalService, expected_e_type: Exception, expected_e_msg: str) -> None:
+        any_calendar_id = "my-calendar-id"
+        any_date, _ = self._date_one_giant_leap_for_mankind()
+        
+        try:
+            sut.get_events(calendar_id=any_calendar_id, from_date=any_date, until_date=any_date)
+        except Exception as received_e:
+            assert type(received_e) == expected_e_type, "Expected '{}' got '{}' instead".format(expected_e_type, type(received_e))
+            assert str(received_e) == expected_e_msg, "Expected exception message '{}'. Got '{}' instead".format(expected_e_msg, str(received_e))
