@@ -1,4 +1,5 @@
 import datetime
+import json
 import pytest
 from tests.utils.http_client_spy import HTTPClientSpy
 
@@ -23,11 +24,16 @@ class GCalService:
         }
 
         try:
-            response = self._client.get(url=url, query_params=query_params)
+            response = self._client.get(url=url, query_params=query_params)     
         except Exception as e:
             raise GCalService.ClientException(e)
 
-        if response and response.status_code != 200:
+        if response and response.status_code == 200:
+            try: 
+                _ = json.loads(response.body)
+            except ValueError:
+                raise GCalService.InvalidData("response body '{}' is not a valid JSON".format(response.body))   
+        elif response and response.status_code != 200:
             raise GCalService.InvalidData("client completed with {} status code".format(response.status_code))
 
     class ClientException(Exception):
@@ -93,6 +99,17 @@ class Test_GCalService:
                 expected_e_type=GCalService.InvalidData,
                 expected_e_msg="client completed with {} status code".format(invalid_status_code)
             )
+
+    def test_get_events_throws_invalid_data_exception_on_200_http_response_with_invalid_json(self) -> None:
+        invalid_json = ''
+        client, sut = self._make_sut()
+        client.mock_response(status_code=200, body=invalid_json)
+
+        self._assert_sut_raises_exception(
+            sut=sut,
+            expected_e_type=GCalService.InvalidData,
+            expected_e_msg="response body '{}' is not a valid JSON".format(invalid_json)
+        )
 
     # Helpers
 
