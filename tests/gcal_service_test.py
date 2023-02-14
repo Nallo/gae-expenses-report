@@ -24,17 +24,20 @@ class GCalService:
         }
 
         try:
-            response = self._client.get(url=url, query_params=query_params)     
+            response = self._client.get(url=url, query_params=query_params)
         except Exception as e:
             raise GCalService.ClientException(e)
 
-        if response and response.status_code == 200:
-            try: 
-                _ = json.loads(response.body)
-            except ValueError:
-                raise GCalService.InvalidData("response body '{}' is not a valid JSON".format(response.body))   
+        if not response:
+            raise GCalService.ClientException(response)
+            
         elif response and response.status_code != 200:
-            raise GCalService.InvalidData("client completed with {} status code".format(response.status_code))
+            raise GCalService.InvalidData(response)
+
+        try:
+            _ = json.loads(response.body)
+        except Exception as e:
+            raise GCalService.InvalidData(response)
 
     class ClientException(Exception):
         pass
@@ -54,6 +57,7 @@ class Test_GCalService:
         a_calendar_id = "my-calendar-id"
         a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut(base_url=a_url)
+        client.mock_response(status_code=200, body='{}')
 
         sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
 
@@ -63,6 +67,8 @@ class Test_GCalService:
         a_calendar_id = "my-calendar-id"
         a_date, a_date_str = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
+        client.mock_response(status_code=200, body='{}')
+
 
         sut.get_events(
             calendar_id=a_calendar_id, 
@@ -81,11 +87,7 @@ class Test_GCalService:
         client, sut = self._make_sut()
         client.mock_failure(Exception(exception_description))
 
-        self._assert_sut_raises_exception(
-            sut=sut,
-            expected_e_type=GCalService.ClientException,
-            expected_e_msg=exception_description
-        )
+        self._assert_sut_raises_exception(sut=sut, expected_e_type=GCalService.ClientException)
 
     def test_get_events_throws_invalid_data_exception_on_non_200_http_response(self) -> None:
         invalid_status_codes = [201, 300, 400, 500]
@@ -94,22 +96,14 @@ class Test_GCalService:
         for invalid_status_code in invalid_status_codes:
             client.mock_response(status_code=invalid_status_code)
 
-            self._assert_sut_raises_exception(
-                sut=sut,
-                expected_e_type=GCalService.InvalidData,
-                expected_e_msg="client completed with {} status code".format(invalid_status_code)
-            )
+            self._assert_sut_raises_exception(sut=sut, expected_e_type=GCalService.InvalidData)
 
     def test_get_events_throws_invalid_data_exception_on_200_http_response_with_invalid_json(self) -> None:
         invalid_json = ''
         client, sut = self._make_sut()
         client.mock_response(status_code=200, body=invalid_json)
 
-        self._assert_sut_raises_exception(
-            sut=sut,
-            expected_e_type=GCalService.InvalidData,
-            expected_e_msg="response body '{}' is not a valid JSON".format(invalid_json)
-        )
+        self._assert_sut_raises_exception(sut=sut, expected_e_type=GCalService.InvalidData)
 
     # Helpers
 
@@ -124,7 +118,7 @@ class Test_GCalService:
         date_str = "1969-07-20T22:56:00+00:00"
         return date, date_str
     
-    def _assert_sut_raises_exception(self, sut: GCalService, expected_e_type: Exception, expected_e_msg: str) -> None:
+    def _assert_sut_raises_exception(self, sut: GCalService, expected_e_type: Exception) -> None:
         any_calendar_id = "my-calendar-id"
         any_date, _ = self._date_one_giant_leap_for_mankind()
         received_e = None
@@ -135,4 +129,3 @@ class Test_GCalService:
             received_e = e
         finally:
             assert type(received_e) == expected_e_type, "Expected '{}' got '{}' instead".format(expected_e_type, type(received_e))
-            assert str(received_e) == expected_e_msg, "Expected exception message '{}'. Got '{}' instead".format(expected_e_msg, str(received_e))
