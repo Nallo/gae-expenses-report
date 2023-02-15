@@ -1,6 +1,5 @@
 import datetime
 import json
-import pytest
 from tests.utils.http_client_spy import HTTPClientSpy
 
 
@@ -30,14 +29,14 @@ class GCalService:
 
         if not response:
             raise GCalService.ClientException(response)
-            
+
         elif response and response.status_code != 200:
             raise GCalService.InvalidData(response)
 
         try:
             _ = json.loads(response.body)
         except Exception as e:
-            raise GCalService.InvalidData(response)
+            raise GCalService.InvalidData(e)
 
     class ClientException(Exception):
         pass
@@ -68,7 +67,6 @@ class Test_GCalService:
         a_date, a_date_str = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
         client.mock_response(status_code=200, body='{}')
-
 
         sut.get_events(
             calendar_id=a_calendar_id, 
@@ -117,15 +115,16 @@ class Test_GCalService:
         date = datetime.datetime(year=1969, month=7, day=20, hour=22, minute=56, tzinfo=datetime.timezone.utc)
         date_str = "1969-07-20T22:56:00+00:00"
         return date, date_str
-    
+
     def _assert_sut_raises_exception(self, sut: GCalService, expected_e_type: Exception) -> None:
         any_calendar_id = "my-calendar-id"
         any_date, _ = self._date_one_giant_leap_for_mankind()
         received_e = None
-        
+
         try:
             sut.get_events(calendar_id=any_calendar_id, from_date=any_date, until_date=any_date)
         except Exception as e:
             received_e = e
         finally:
-            assert type(received_e) == expected_e_type, "Expected '{}' got '{}' instead".format(expected_e_type, type(received_e))
+            assert type(received_e) == expected_e_type, \
+                "Expected '{}' got '{}' instead".format(expected_e_type, type(received_e))
