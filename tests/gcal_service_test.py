@@ -128,6 +128,11 @@ class Test_GCalService:
 
         return (client, sut)
 
+    def _make_response(self, events: list[str]) -> str:
+        d = {}
+        d["items"] = [{"summary": e} for e in events]
+        return json.dumps(d)
+
     def _date_one_giant_leap_for_mankind(self) -> tuple[datetime.date, str]:
         date = datetime.datetime(year=1969, month=7, day=20, hour=22, minute=56, tzinfo=datetime.timezone.utc)
         date_str = "1969-07-20T22:56:00+00:00"
