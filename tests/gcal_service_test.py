@@ -35,6 +35,8 @@ class GCalService:
 
         try:
             _ = json.loads(response.body)
+            return []
+
         except Exception as e:
             raise GCalService.InvalidData(e)
 
@@ -102,6 +104,21 @@ class Test_GCalService:
         client.mock_response(status_code=200, body=invalid_json)
 
         self._assert_sut_raises_exception(sut=sut, expected_e_type=GCalService.InvalidData)
+
+    def test_get_events_returns_empty_events_list_on_200_response_without_events(self) -> None:
+        any_calendar_id = "my-calendar-id"
+        any_date, _ = self._date_one_giant_leap_for_mankind()
+        json = '{ "items": [] }'
+        client, sut = self._make_sut()
+        client.mock_response(status_code=200, body=json)
+
+        received_events = sut.get_events(
+            calendar_id=any_calendar_id,
+            from_date=any_date,
+            until_date=any_date
+        )
+
+        assert received_events == []
 
     # Helpers
 
