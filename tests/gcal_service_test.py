@@ -59,7 +59,7 @@ class Test_GCalService:
         a_calendar_id = "my-calendar-id"
         a_date, _ = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut(base_url=a_url)
-        client.mock_response(status_code=200, body='{}')
+        client.mock_response(status_code=200, body=self._make_response(events=[]))
 
         sut.get_events(calendar_id=a_calendar_id, from_date=a_date, until_date=a_date)
 
@@ -69,7 +69,7 @@ class Test_GCalService:
         a_calendar_id = "my-calendar-id"
         a_date, a_date_str = self._date_one_giant_leap_for_mankind()
         client, sut = self._make_sut()
-        client.mock_response(status_code=200, body='{}')
+        client.mock_response(status_code=200, body=self._make_response(events=[]))
 
         sut.get_events(
             calendar_id=a_calendar_id, 
