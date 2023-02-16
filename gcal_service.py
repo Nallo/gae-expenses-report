@@ -1,11 +1,18 @@
+from abc import ABC, abstractmethod
 from collections import namedtuple
 from datetime import datetime
 import json
-from tests.utils.http_client_spy import HTTPClientSpy
+from http_response import HTTPResponse
+
+
+class HTTPClient(ABC):
+    @abstractmethod
+    def get(self, url, query_params: dict = {}) -> HTTPResponse:
+        ...
 
 
 class GCalService:
-    def __init__(self, base_url: str, client: HTTPClientSpy) -> None:
+    def __init__(self, base_url: str, client: HTTPClient) -> None:
         self._base_url = base_url
         self._client = client
 

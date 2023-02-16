@@ -1,10 +1,10 @@
 from typing import Any
 import pytest
-
+from gcal_service import HTTPClient
 from http_response import HTTPResponse
 
 
-class HTTPClientSpy:
+class HTTPClientSpy(HTTPClient):
     def __init__(self) -> None:
         self.requested_urls = []
         self._requested_query_params = {}
