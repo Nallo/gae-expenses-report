@@ -28,7 +28,7 @@ class Test_GCalService:
         client.mock_response(status_code=200, body=self._make_response(events=[]))
 
         sut.get_events(
-            calendar_id=a_calendar_id, 
+            calendar_id=a_calendar_id,
             from_date=a_date,
             until_date=a_date,
         )
@@ -78,19 +78,19 @@ class Test_GCalService:
         assert received_events == []
 
     def test_get_events_returns_events_list_on_200_response_with_events(self) -> None:
-            any_calendar_id = "my-calendar-id"
-            any_date, _ = self._date_one_giant_leap_for_mankind()
-            client_response = self._make_response(events=["e1", "e2"])
-            client, sut = self._make_sut()
-            client.mock_response(status_code=200, body=client_response)
+        any_calendar_id = "my-calendar-id"
+        any_date, _ = self._date_one_giant_leap_for_mankind()
+        client_response = self._make_response(events=["e1", "e2"])
+        client, sut = self._make_sut()
+        client.mock_response(status_code=200, body=client_response)
 
-            received_events = sut.get_events(
-                calendar_id=any_calendar_id,
-                from_date=any_date,
-                until_date=any_date
-            )
+        received_events = sut.get_events(
+            calendar_id=any_calendar_id,
+            from_date=any_date,
+            until_date=any_date
+        )
 
-            assert received_events == ["e1", "e2"]
+        assert received_events == ["e1", "e2"]
 
     # Helpers
 
