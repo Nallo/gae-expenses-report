@@ -1,14 +1,7 @@
-from abc import ABC, abstractmethod
 from collections import namedtuple
 from datetime import datetime
+from http_client import HTTPClient
 import json
-from http_response import HTTPResponse
-
-
-class HTTPClient(ABC):
-    @abstractmethod
-    def get(self, url, query_params: dict = {}) -> HTTPResponse:
-        ...
 
 
 class GCalService:
