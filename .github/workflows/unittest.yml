@@ -3,7 +3,7 @@
 
 name: Python test
 
-on: [push, pull_request]
+on: [pull_request]
 
 permissions:
   contents: read
